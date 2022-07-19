@@ -9,6 +9,7 @@ const passportLocal = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const bodyParser = require("body-parser");
+//var fx = require("money");
 
 var usersRouter = require("./authentication/routes/auth");
 
@@ -24,16 +25,6 @@ app.use("/users", usersRouter);
 
 //----------------------------------------- END OF IMPORTS---------------------------------------------------
 
-// mongoose.connect(
-//   "mongodb+srv://asaf:asaf123@clusterblockchain0.xzi0z.mongodb.net/?retryWrites=true&w=majority",
-//   {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//   },
-//   () => {
-//     console.log("Mongoose Is Connected");
-//   }
-// );
 const connectToDB = require('./config/mongooseConnect')
 connectToDB()
 

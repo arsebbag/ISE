@@ -8,7 +8,7 @@ async function connectToDB() {
             useUnifiedTopology: true,
         },
         () => {
-            console.log("Mongoose Is Connected");
+            console.log("Mongoose is connected");
         }
     );
     mongoose.connection.on('error', () => console.error("Couldn't connect to database."))
