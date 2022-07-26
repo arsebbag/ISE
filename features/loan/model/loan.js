@@ -1,8 +1,8 @@
-const {Schema} = require("mongoose");
+const { Schema } = require("mongoose");
 const loan = new Schema({
     destAccount: String,
     amount: Number,
-    managerID: String,
+    managerID: String, //that authorized it
     dateOfLoan: Date.now()
 });
 

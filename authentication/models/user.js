@@ -12,8 +12,8 @@ const user = new Schema({
     type: Number,
     required: true
   },
+  //userType: String,
   manager: Number //id of manager
 });
 
 module.exports = model("User", user);
-

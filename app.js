@@ -53,7 +53,6 @@ require("./passportConfig")(passport);
 app.listen(4000, () => {
   console.log("Server Has Started");
 });
-
 module.exports = app;
 
 // not for here
