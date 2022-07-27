@@ -1,7 +1,8 @@
 const router = require("express").Router();
-const Admin = require("../../../authentication/models/admin")
-const User = require("../../../authentication/models/user");
-const Account = require("../model/loan")
+const Account = require("../../account/models/account")
+const User = require("../../authentication/models/user");
+const Loan = require("../model/loan")
+
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
 const session = require("express-session");
@@ -16,51 +17,33 @@ const session = require("express-session");
 // router.use(passport.session());
 
 router.route("/").post((req, res, next) => {
-
+    res.send("in Loan route")
 });
 
-router.route("/create").post(addAccount)
-router.route("/update/:id").post(updateAccount);
-router.route("/delete/:id").post(deleteAccount);
-
-
 //controllers funcs - (maybe passe it to new controllers folder/file).
-const addAccount = async (req, res) => {
+const addLoan = async (req, res) => {
     //need to check if the session is a admin 
     const data = req.body
-    let newAccount = await new Account({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        birthday: data.birthday,
-        balance: data.balance,
-        username: data.username,
-        password: data.password,
-        //userType: data.userType
+    const params = req.params
+    let newLoan = new Loan({
+        destAccount: data.destAccount,
+        amount: data.amount,
+        managerID: data.managerID,
+        dateOfLoan: Date.now(),
+        duration: data.duration
     });
-    await newAccount.save();
-    res.send("Account created");
+    await newLoan.save();
+    
+    const account = await Account.findById(data.destAccount).exec();
+    console.log(account)
+    const user = await User.findById(account.id).exec();
+    console.log(user.id)
+    
+    res.send("Loan created");
 }
 
-const updateAccount = async (req, res) => {
-    try {
-        const id = req.params.id;
-        const uAccount = await Account.findByIdAndUpdate(id, {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            email: data.email,
-            birthday: data.birthday,
-            username: data.username,
-            password: data.password,
-            //userType: data.userType
-        }, { new: true });
-    } catch (error) {
-        res.status(400).send(error.message);
-    }
-    console.log("1 document updated");
-}
 
-const deleteAccount = async (req, res) => {
+const deleteLoan = async (req, res) => {
     //need to check if the session is a admin 
     try {
         const id = req.params.id;
@@ -70,4 +53,9 @@ const deleteAccount = async (req, res) => {
     res.send("Account deleted");
 }
 
+router.route("/create").post(addLoan);
+router.route("/delete/:id").post(deleteLoan);
+
+//function loanAutorization 
 module.exports = router
+

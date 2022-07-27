@@ -5,6 +5,8 @@ const passport = require("passport");
 const session = require("express-session");
 const cors = require("cors");
 
+//const { isManager } = require("../../../utils/common")
+
 router.use(
   cors({
     origin: "http://localhost:3000",
@@ -21,17 +23,24 @@ router.use(
 );
 router.use(passport.session());
 
-router.route("/login").post((req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
+router.route("/login").post(async (req, res, next) => {
+  await passport.authenticate("local", (err, user, info) => {
     if (err) throw err;
     if (!user) res.send("No user exists");
     else {
-      req.logIn(user, (err) => {
+      req.logIn(user, async (err) => { //logIn???? where is it? - to asaf
         if (err) throw err;
-        if (user.userType == 'A')// ADMIN
-        { }
+        let sessUser = await User.findOne({username: req.body.username}).exec()
+        req.session.user = sessUser;
+        
+        if (req.session.user.role == 'M')// Manager
+        { 
+          console.log("SUCCESS")//"SUCCESS"
+        }else{
+          console.log("fail")
+        }
+        //need to add something
         res.send("Successfully authenticated");
-        console.log(req.user);//dbg
       });
     }
   })(req, res, next);
@@ -50,7 +59,7 @@ router.route("/register").post((req, res) => {
         birthday: req.body.birthday,
         username: req.body.username,
         password: hashedPassword,
-        userType: req.body.userType
+        role: req.body.role
       });
       await newUser.save();
       res.send("User created");

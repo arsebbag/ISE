@@ -1,17 +1,8 @@
 const router = require("express").Router();
-const User = require("../models/user");
+const User = require("../../authentication/models/user");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
 const session = require("express-session");
-// encrypt the session details.
-// router.use(
-//     session({
-//         secret: "secretcode",
-//         resave: true,
-//         saveUninitialized: true,
-//     })
-// );
-// router.use(passport.session());
 
 router.route("/").post((req, res, next) => {
 
@@ -38,3 +29,5 @@ router.route("/create").post((req, res) => {
         }
     });
 });
+
+module.exports = router

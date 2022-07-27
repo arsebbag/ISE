@@ -36,7 +36,11 @@ function getDateFromString(dateStr) {
     return new Date(`${splitDate[2]}/${splitDate[1]}/${splitDate[0]}`);
 }
 function isManager(user) {
-    return user.userType == "M";
+    return user.role == "M";
+}
+
+function addMoneyToAccount(accountNum) {
+    
 }
 
 module.exports = {

@@ -9,11 +9,11 @@ const passportLocal = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const bodyParser = require("body-parser");
-//var fx = require("money");
-
-var usersRouter = require("./authentication/routes/auth");
 
 var app = express();
+var usersRouter = require("./features/authentication/routes/auth");
+var allRouters = require("./routes");
+const port = 4000;
 
 app.use(logger("dev"));
 app.use(express.json());
@@ -22,13 +22,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/users", usersRouter);
+app.use("/routes", allRouters);
 
 //----------------------------------------- END OF IMPORTS---------------------------------------------------
-
-const connectToDB = require('./config/mongooseConnect')
-connectToDB()
-
-// Middleware
+// Middlewares
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
@@ -50,9 +47,15 @@ app.use(cookieParser("secretcode"));
 app.use(passport.initialize());
 app.use(passport.session());
 require("./passportConfig")(passport);
-app.listen(4000, () => {
-  console.log("Server Has Started");
+
+app.listen(port, () => {
+  console.log("Server is listening to", port);
 });
+
+
+const connectToDB = require('./config/mongooseConnect')
+connectToDB()
+
 module.exports = app;
 
 // not for here

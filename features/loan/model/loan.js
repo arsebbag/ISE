@@ -1,9 +1,10 @@
-const { Schema } = require("mongoose");
-const loan = new Schema({
+const { Schema, model } = require("mongoose");
+const loanSchema = new Schema({
     destAccount: String,
     amount: Number,
     managerID: String, //that authorized it
-    dateOfLoan: Date.now()
+    dateOfLoan: { type: Date, default: Date.now },
+    duration: {type: Date}
 });
 
-module.exports = mongoose.model("Loan", user);
+module.exports = model("Loan", loanSchema);

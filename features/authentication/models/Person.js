@@ -2,19 +2,20 @@
 const PersonSchema = ({
     firstName: {
         type: String,
-        required: true
+        //required: true
     },
     lastName: {
         type: String,
-        required: true
+        //required: true
     },
     email: {
         type: String,
-        required: true
+        //required: true
+        //change email to be username
     },
     birthday: {
         type: Date,
-        required: true
+        //required: true
     }
 })
 module.exports = PersonSchema
