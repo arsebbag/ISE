@@ -1,10 +1,10 @@
 const {Schema, model} = require("mongoose");
 //need to link with the blockChain
-const transaction = new Schema({
+const transactionSchema = new Schema({
     sourceAccount: String,
     destAccount: String,
     amount: Number,
-    dateOfTrans: Date.now()
+    dateOfTrans: { type: Date, default: Date.now }
 });
 
-module.exports = model("Transaction", user);
+module.exports = model("Transaction", transactionSchema);

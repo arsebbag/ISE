@@ -1,9 +1,9 @@
 
 const CredentialsSchema = ({
-    username: {
+    username: { //change to email!!!
         type: String,
         required: true
-        //email insted 
+        //email instead 
     },
     password: {
         type: String,

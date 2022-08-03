@@ -52,7 +52,6 @@ app.listen(port, () => {
   console.log("Server is listening to", port);
 });
 
-
 const connectToDB = require('./config/mongooseConnect')
 connectToDB()
 

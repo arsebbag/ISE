@@ -36,11 +36,13 @@ router.route("/login").post(async (req, res, next) => {
         if (req.session.user.role == 'M')// Manager
         { 
           console.log("SUCCESS")//"SUCCESS"
-        }else{
-          console.log("fail")
+          res.send("Manager authenticated");
+        } else if (req.session.user.role == 'B'){
+          res.send("Basic user authenticated");
         }
-        //need to add something
-        res.send("Successfully authenticated");
+        else{
+          res.send("Authentification failed");
+        }
       });
     }
   })(req, res, next);
@@ -72,6 +74,15 @@ router.route("/").get((req, res) => {
   User.find()
     .then((user) => res.json(user))
     .catch((err) => res.status(400).json("Error: " + err));
+});
+
+
+//check if ok
+router.route("/remove").delete(async (req, res) => {
+try{
+  let user = await User.findOneAndDelete({ username: req.body.username });
+  if (!user) return res.status(404).send("user with the given id doesn't found");
+  } catch (error) { res.status(400).send(error.message); }
 });
 
 module.exports = router;

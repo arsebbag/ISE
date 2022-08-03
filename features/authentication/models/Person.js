@@ -8,14 +8,15 @@ const PersonSchema = ({
         type: String,
         //required: true
     },
-    email: {
-        type: String,
-        //required: true
-        //change email to be username
-    },
+    
     birthday: {
         type: Date,
         //required: true
     }
+    // email: {
+    //     type: String,
+    //     //required: true
+    //     //change email to be username
+    // },
 })
 module.exports = PersonSchema

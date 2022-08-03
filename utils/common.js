@@ -1,4 +1,17 @@
 
+//moved to API
+// var LEVCOIN = 5; // 1 LevCoin is equals to 5 dollars
+// var countLevCoin = 0;
+
+// function buyLevCoin(num) {
+//     countLevCoin += num;
+//     LEVCOIN = Math.ceil(LEVCOIN - (LEVCOIN/1000 + countLevCoin))
+// }
+const Account = require("../features/account/models/account")
+const User = require("../features/authentication/models/user") 
+const mongoose = require('mongoose')
+
+
 function getCurrentDateTime() {
     return getStringFromDateTime(new Date());
 }
@@ -38,9 +51,15 @@ function getDateFromString(dateStr) {
 function isManager(user) {
     return user.role == "M";
 }
-
-function addMoneyToAccount(accountNum) {
-    
+async function findAccountDetails(accountId){
+    return Account.findById(accountId).then(res=>{
+        return res;
+    }).catch(err=>{
+        console.log(err)
+    })//{id:accountId}
+}
+async function findUserDetails(userId) {
+    return await User.findById(userId)//{ id: userId }
 }
 
 module.exports = {
@@ -50,5 +69,7 @@ module.exports = {
     getDateTimeFromString,
     getStringFromDateTime,
     getDateFromString,
-    isManager
+    isManager,
+    findAccountDetails,
+    findUserDetails
 };
