@@ -39,6 +39,12 @@ module.exports.register = async (req, res, next) => {
   }
 };
 
+module.exports.getAllAllUsers = async (req, res) => {
+  User.find()
+    .then((user) => res.json(user))
+    .catch((err) => res.status(400).json("Error: " + err));
+};
+
 module.exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await User.find({ _id: { $ne: req.params.id } }).select([
