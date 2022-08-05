@@ -1,11 +1,11 @@
 const router = require("express").Router();
-const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
 const session = require("express-session");
 const cors = require("cors");
 
-//const { isManager } = require("../../../utils/common")
+const User = require("../models/user");
+
 
 router.use(
   cors({
@@ -30,17 +30,19 @@ router.route("/login").post(async (req, res, next) => {
     else {
       req.logIn(user, async (err) => { //logIn???? where is it? - to asaf
         if (err) throw err;
-        let sessUser = await User.findOne({username: req.body.username}).exec()
+        let sessUser = await User.findOne({ username: req.body.username }).exec()
         req.session.user = sessUser;
-        
+
         if (req.session.user.role == 'M')// Manager
-        { 
+        {
           console.log("SUCCESS")//"SUCCESS"
-          res.send("Manager authenticated");
-        } else if (req.session.user.role == 'B'){
+          //res.send("Manager authenticated");
+          //console.log(user);
+          res.json({ message: "Manager authenticated", userDetails: user })// need to add all person details
+        } else if (req.session.user.role == 'B') {
           res.send("Basic user authenticated");
         }
-        else{
+        else {
           res.send("Authentification failed");
         }
       });
@@ -54,6 +56,7 @@ router.route("/register").post((req, res) => {
     if (doc) res.send("User already exists");
     if (!doc) {
       const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      
       const newUser = new User({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
@@ -79,10 +82,15 @@ router.route("/").get((req, res) => {
 
 //check if ok
 router.route("/remove").delete(async (req, res) => {
-try{
-  let user = await User.findOneAndDelete({ username: req.body.username });
-  if (!user) return res.status(404).send("user with the given id doesn't found");
+  try {
+    let user = await User.findOneAndDelete({ username: req.body.username });
+    if (!user) return res.status(404).send("user with the given id doesn't found");
   } catch (error) { res.status(400).send(error.message); }
 });
 
+router.route("/removeall").delete(async (req, res) => {
+  try {
+    await User.remove({});
+  } catch (error) { res.status(400).send(error.message); }
+});
 module.exports = router;

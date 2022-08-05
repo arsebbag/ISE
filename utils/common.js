@@ -8,10 +8,10 @@
 //     LEVCOIN = Math.ceil(LEVCOIN - (LEVCOIN/1000 + countLevCoin))
 // }
 const Account = require("../features/account/models/account")
-const User = require("../features/authentication/models/user") 
-const mongoose = require('mongoose')
+const User = require("../features/authentication/models/user")
+//const mongoose = require('mongoose')
 
-
+////#region - times.
 function getCurrentDateTime() {
     return getStringFromDateTime(new Date());
 }
@@ -48,18 +48,52 @@ function getDateFromString(dateStr) {
     let splitDate = dateStr.split("/");
     return new Date(`${splitDate[2]}/${splitDate[1]}/${splitDate[0]}`);
 }
+////#endregion - times.
+
+////#region- Accounts functions
 function isManager(user) {
     return user.role == "M";
 }
-async function findAccountDetails(accountId){
-    return Account.findById(accountId).then(res=>{
+async function findAccountDetails(accountId) {
+    return Account.findById(accountId).then(res => {
         return res;
-    }).catch(err=>{
+    }).catch(err => {
         console.log(err)
-    })//{id:accountId}
+    })
 }
+////#endregion - accounts.
+//maybe not need it
+async function checkBalance(accountId) {
+    let balance = (await Account.findById(accountId)).balance;
+    if (balance > 0)
+        return true;
+    else
+        return false;
+}
+//#region - user's functions 
+async function getAllUserZero() {
+    let accounts = await Account.find({ "balance": { $lte: 0 } }).distinct('ownerId');// get all accountIds with balance = 0.
+    let users = await User.find({ "_id":{$in :accounts}}).distinct('_id');
+    return users;
+    
+}
+
 async function findUserDetails(userId) {
     return await User.findById(userId)//{ id: userId }
+}
+////#endregion - users.
+
+///#region - Loan's functions
+function loanAutorization(srcBalance, dstBalance, amount) {
+    if (amount > 0.6 * srcBalance) {
+        return { "cond": 0, "message": "src account not have enough money for this loan amount" };
+    }
+    else if (amount > 0.5 * dstBalance) {
+        return { "cond": 0, "message": "dst account not have enough money for this loan amount" };
+    }
+    else {
+        return { "cond": 1, "message": "Loan autorized" };
+    }
 }
 
 module.exports = {
@@ -71,5 +105,8 @@ module.exports = {
     getDateFromString,
     isManager,
     findAccountDetails,
-    findUserDetails
+    findUserDetails,
+    checkBalance,
+    getAllUserZero,
+    loanAutorization
 };

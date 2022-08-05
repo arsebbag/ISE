@@ -8,31 +8,20 @@ const User = require("../../authentication/models/user");
 const Loan = require("../model/loan")
 const Utils = require("../../../utils/common")
 
-// encrypt the session details.
-// router.use(
-//     session({
-//         secret: "secretcode",
-//         resave: true,
-//         saveUninitialized: true,
-//     })
-// );
-// router.use(passport.session());
-
-//insomnia
-// {
-//     "srcAccount": "62e2f64b7d9b8c57953c9fd7",
-//         "destAccount": "62e2f63f7d9b8c57953c9fd4",
-//             "amount": "20",
-//                 "managerID": "111",
-//                     "dateOfLoan": "",
-//                         "duration": "2"
-// }
-
 // loan's controllers
 router.route("/").post((req, res, next) => {
     res.send("in Loan route")
 });
 
+//CREATE LOAN 
+// {
+//     "srcAccountId": "62ecde84c444f977b9bc2ec8",
+//         "destAccountId": "62ecdeaac444f977b9bc2ecc",
+//             "amount": "10",
+//                 "managerID": "111",
+//                     "dateOfLoan": "",
+//                         "duration": "2"
+// }
 //controllers funcs - (maybe passe it to new controllers folder/file).
 const addLoan = async (req, res) => {
     const data = req.body
@@ -48,26 +37,24 @@ const addLoan = async (req, res) => {
     // if (req.session.user.role == 'M') {
     //     //check account - amount enough to validate the loan
     // }
-    //dbg////////////////
-    
+
     let srcAcc = await Utils.findAccountDetails(newLoan.srcAccountId)
     let dstAcc = await Utils.findAccountDetails(newLoan.destAccountId)
     // let srcUser = await Utils.findUserDetails(srcAcc.ownerId)
     // let dstUser = await Utils.findUserDetails(dstAcc.ownerId)
-    let getAuth = loanAutorization(srcAcc.balance, dstAcc.balance, newLoan.amount); //verification of accounts balances
 
-    //dbg/////////////////
-    // console.log("srcacc\n",srcAcc)
-    // console.log("srcacc\n", srcUser)
-    // console.log(dstAccId)
-    /////////////////
+    /////check authorizations/////
+    let getAuth = Utils.loanAutorization(srcAcc.balance, dstAcc.balance, newLoan.amount); //verification of accounts balances
 
     if (!getAuth.cond) {
-        console.log((await getAuth).message)
-        //res.send((await getAuth).message);
+        //console.log((await getAuth).message)
+        res.send((await getAuth).message);
     }
-    await newLoan.save();
-    res.send("Loan created");
+    else {
+        //handleAccountBalances(newLoan.srcAccountId, newLoan.destAccountId, newLoan.amount);
+        await newLoan.save();
+        res.send("Loan created");
+    }
 }
 
 const deleteLoan = async (req, res) => {
@@ -80,7 +67,35 @@ const deleteLoan = async (req, res) => {
     res.send("Loan deleted");
 }
 
+const deleteAllLoan = async (req, res) => {
+    //need to check if the session is a admin 
+    try {
+        await Loan.remove({})
+    } catch (error) { res.status(400).send(error.message); }
+    res.send("All loans deleted");
+}
+
+const updateLoan = async (req, res) => {
+    try {
+        const id = req.params._id;
+        const data = req.body;
+        const uLoan = await Loan.findOneAndUpdate({ id: id }, {
+            srcAccountId: data.srcAccountId,
+            destAccountId: data.destAccountId,
+            amount: data.amount,
+            managerId: data.managerId,
+            duration: data.duration
+            //userType: data.userType
+        }, { new: true });
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+    console.log("1 document updated");
+    res.send("ok")
+}
+
 const getAllLoans = async (req, res) => {
+
     Loan.find()
         .then((loan) => res.json(loan))
         .catch((err) => res.status(400).json("Error: " + err));
@@ -89,23 +104,9 @@ const getAllLoans = async (req, res) => {
 //loan's routes
 router.route("/create").post(addLoan);
 router.route("/delete/:id").post(deleteLoan);
+router.route("/deleteAll").get(deleteAllLoan);
+router.route("/update/:id").put(updateLoan);
 router.route("/loans").get(getAllLoans);
-
-
-//TODO - move it to utils after it working
-function loanAutorization(srcBalance, dstBalance, amount) {
-    if (amount > 0.6 * srcBalance)//not autorized
-    {
-        return { "cond": 0, "message": "src account not have enough money for this loan amount" };
-    }
-    else if (amount > 0.5 * dstBalance)//not autorized
-    {
-        return { "cond": 0, "message": "dst account not have enough money for this loan amount" };
-    }
-    else {
-        return { "cond": 1, "message": "Loan autorized" };
-    }
-}
 
 module.exports = router
 

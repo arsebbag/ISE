@@ -42,7 +42,7 @@ var countLevCoin = 0;
 //change LEVCOIN value
 function buyLevCoin(num) {
     countLevCoin += num;
-    LEVCOIN = Math.ceil(LEVCOIN - (LEVCOIN / 1000 + countLevCoin))
+    LEVCOIN = Math.ceil(LEVCOIN - (LEVCOIN / 10000 + countLevCoin))
 }
 
 module.exports = {

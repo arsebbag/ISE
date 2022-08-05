@@ -10,13 +10,13 @@ const PersonSchema = ({
     },
     
     birthday: {
-        type: Date,
+        type: String //Date,
         //required: true
-    }
-    // email: {
-    //     type: String,
-    //     //required: true
-    //     //change email to be username
-    // },
+    },
+    email: {
+        type: String,
+        //required: true
+        //change email to be username
+    },
 })
 module.exports = PersonSchema
