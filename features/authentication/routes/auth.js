@@ -28,19 +28,21 @@ router.route("/login").post(async (req, res, next) => {
     if (err) throw err;
     if (!user) res.send("No user exists");
     else {
-      req.logIn(user, async (err) => { //logIn???? where is it? - to asaf
+      req.logIn(user, async (err) => {
+        //logIn???? where is it? - to asaf
         if (err) throw err;
-        let sessUser = await User.findOne({username: req.body.username}).exec()
+        let sessUser = await User.findOne({
+          username: req.body.username,
+        }).exec();
         req.session.user = sessUser;
-        
-        if (req.session.user.role == 'M')// Manager
-        { 
-          console.log("SUCCESS")//"SUCCESS"
+
+        if (req.session.user.role == "M") {
+          // Manager
+          console.log("SUCCESS"); //"SUCCESS"
           res.send("Manager authenticated");
-        } else if (req.session.user.role == 'B'){
+        } else if (req.session.user.role == "B") {
           res.send("Basic user authenticated");
-        }
-        else{
+        } else {
           res.send("Authentification failed");
         }
       });
@@ -61,7 +63,7 @@ router.route("/register").post((req, res) => {
         birthday: req.body.birthday,
         username: req.body.username,
         password: hashedPassword,
-        role: req.body.role
+        role: req.body.role,
       });
       await newUser.save();
       res.send("User created");
@@ -76,13 +78,27 @@ router.route("/").get((req, res) => {
     .catch((err) => res.status(400).json("Error: " + err));
 });
 
+// get request route
+router.route("/getUser/:username").get(async (req, res, next) => {
+  try {
+    const users = await User.find({
+      username: { $eq: req.params.username },
+    }).select(["email", "username", "avatarImage", "role", "_id"]);
+    return res.json(users);
+  } catch (ex) {
+    next(ex);
+  }
+});
 
 //check if ok
 router.route("/remove").delete(async (req, res) => {
-try{
-  let user = await User.findOneAndDelete({ username: req.body.username });
-  if (!user) return res.status(404).send("user with the given id doesn't found");
-  } catch (error) { res.status(400).send(error.message); }
+  try {
+    let user = await User.findOneAndDelete({ username: req.body.username });
+    if (!user)
+      return res.status(404).send("user with the given id doesn't found");
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
 });
 
 module.exports = router;
