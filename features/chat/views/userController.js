@@ -51,6 +51,7 @@ module.exports.getAllUsers = async (req, res, next) => {
       "email",
       "username",
       "avatarImage",
+      "role",
       "_id",
     ]);
     return res.json(users);
