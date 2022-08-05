@@ -83,7 +83,16 @@ router.route("/getUser/:username").get(async (req, res, next) => {
   try {
     const users = await User.find({
       username: { $eq: req.params.username },
-    }).select(["email", "username", "avatarImage", "role", "_id"]);
+    }).select([
+      "email",
+      "firstName",
+      "lastName",
+      "username",
+      "avatarImage",
+      "role",
+      "_id",
+      "balance",
+    ]);
     return res.json(users);
   } catch (ex) {
     next(ex);
@@ -99,6 +108,25 @@ router.route("/remove").delete(async (req, res) => {
   } catch (error) {
     res.status(400).send(error.message);
   }
+});
+
+router.route("/update/:username").post((req, res) => {
+  User.findOne({ username: { $eq: req.params.username } })
+    .then((user) => {
+      console.log(user);
+      user.firstName = req.body.firstName;
+      user.lastName = req.body.lastName;
+      user.role = req.body.role;
+      user.avatarImage = req.body.avatarImage;
+      user.username = req.body.username;
+      user.birthday = "";
+
+      user
+        .save()
+        .then(() => res.json("user updated!"))
+        .catch((err) => res.status(400).json("Error: " + err));
+    })
+    .catch((err) => res.status(400).json("Error: " + err));
 });
 
 module.exports = router;
