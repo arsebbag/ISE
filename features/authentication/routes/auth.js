@@ -79,40 +79,6 @@ router.route("/").get((req, res) => {
     .catch((err) => res.status(400).json("Error: " + err));
 });
 
-// get request route
-router.route("/getUser/:username").get(async (req, res, next) => {
-  try {
-    const users = await User.find({
-      username: { $eq: req.params.username },
-    }).select([
-      "email",
-      "phone",
-      "firstName",
-      "lastName",
-      "username",
-      "avatarImage",
-      "birthday",
-      "role",
-      "_id",
-      "balance",
-    ]);
-    return res.json(users);
-  } catch (ex) {
-    next(ex);
-  }
-});
-
-//check if ok
-router.route("/remove").delete(async (req, res) => {
-  try {
-    let user = await User.findOneAndDelete({ username: req.body.username });
-    if (!user)
-      return res.status(404).send("user with the given id doesn't found");
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
-
 router.route("/update/:username").post((req, res) => {
   User.findOne({ username: { $eq: req.params.username } })
     .then((user) => {
@@ -130,6 +96,38 @@ router.route("/update/:username").post((req, res) => {
         .catch((err) => res.status(400).json("Error: " + err));
     })
     .catch((err) => res.status(400).json("Error: " + err));
+});
+
+//check if ok
+router.route("/remove").delete(async (req, res) => {
+  try {
+    let user = await User.findOneAndDelete({ username: req.body.username });
+    if (!user)
+      return res.status(404).send("user with the given id doesn't found");
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
+router.route("/getUser/:username").get(async (req, res, next) => {
+  try {
+    const users = await User.find({
+      username: { $eq: req.params.username },
+    }).select([
+      "email",
+      "phone",
+      "firstName",
+      "lastName",
+      "username",
+      "avatarImage",
+      "role",
+      "_id",
+      "balance",
+    ]);
+    return res.json(users);
+  } catch (ex) {
+    next(ex);
+  }
 });
 
 module.exports = router;
