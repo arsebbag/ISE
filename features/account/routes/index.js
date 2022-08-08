@@ -55,9 +55,9 @@ async function CountUserID(userId) {
 
 const updateAccount = async (req, res) => {
     try {
-        const id = req.params._id;
+        const id = req.params._id.slice(1);
         const data = req.body;
-        await Account.findOneAndUpdate({ id: id }, {
+        await Account.findOneAndUpdate({ _id: id }, {
             balance: data.balance,
             managerId: data.managerId,
         }, { new: true });
@@ -71,12 +71,16 @@ const updateAccount = async (req, res) => {
 
 const deleteAccount = async (req, res) => {
     //need to check if the session is a admin 
-    try {
-        const id = req.params.id;
-        const account = await Account.findByIdAndRemove(id);
-        if (!account) return res.status(404).send("account with the given id doesn't found");
-    } catch (error) { res.status(400).send(error.message); }
-    res.send("Account deleted");
+    const id = req.params.id.slice(1);
+    const tran = await Account.findByIdAndRemove(id).exec(function (err, item) {
+        if (err) {
+            return res.json({ success: false, msg: 'Cannot remove item' });
+        }
+        if (!item) {
+            return res.status(404).json({ success: false, msg: 'Account not found' });
+        }
+        res.json({ success: true, msg: 'Account deleted.' });
+    });
 }
 
 const getAllAccounts = async (req, res) => {
@@ -86,7 +90,7 @@ const getAllAccounts = async (req, res) => {
         .catch((err) => res.status(400).json("Error: " + err));
 }
 
-//not working
+//not working TODO try again
 const deleteAllAccounts = async (req, res) => {
     //need to check if the session is a admin 
     Account.remove({}).catch(err => {
@@ -110,8 +114,8 @@ function getAllBalanceCurrencies(balance) {
 }
 //Account routes 
 
-router.route("/accounts").get(getAllAccounts);
-router.route("/delete/:id").post(deleteAccount);
+router.route("/getAll").get(getAllAccounts);
+router.route("/delete/:id").get(deleteAccount);
 router.route("/deleteAll").get(deleteAllAccounts);
 router.route("/update/:id").put(updateAccount);
 

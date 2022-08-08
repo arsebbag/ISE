@@ -61,7 +61,7 @@ async function findAccountDetails(accountId) {
         console.log(err)
     })
 }
-////#endregion - accounts.
+
 //maybe not need it
 async function checkBalance(accountId) {
     let balance = (await Account.findById(accountId)).balance;
@@ -70,6 +70,8 @@ async function checkBalance(accountId) {
     else
         return false;
 }
+////#endregion - accounts.
+
 //#region - user's functions 
 async function getAllUserZero() {
     let accounts = await Account.find({ "balance": { $lte: 0 } }).distinct('ownerId');// get all accountIds with balance = 0.
@@ -82,6 +84,24 @@ async function findUserDetails(userId) {
     return await User.findById(userId)//{ id: userId }
 }
 ////#endregion - users.
+
+////#region - Transaction's functions////
+function transactionAutorization(srcBalance, dstBalance, amount) {
+    //need to check: balance srAcccount have enough monney 
+    if (amount <= 0)//not autorized
+    {
+        return { "cond": 0, "message": "ERROR - amount need to be greater than zero!" };
+    }
+    else if (srcBalance < amount)//not autorized
+    {
+        return { "cond": 0, "message": "Source account not have enough money for this transaction amount" };
+    }
+    else {
+        return { "cond": 1, "message": "Transaction authorized" };
+    }
+}
+////#endregion - Transaction.
+
 
 ///#region - Loan's functions
 function loanAutorization(srcBalance, dstBalance, amount) {
@@ -97,16 +117,17 @@ function loanAutorization(srcBalance, dstBalance, amount) {
 }
 
 module.exports = {
-    getCurrentDateTime,
-    getCurrentDate,
-    getStringFromDate,
-    getDateTimeFromString,
-    getStringFromDateTime,
-    getDateFromString,
+    //getCurrentDateTime,
+    //getCurrentDate,
+    //getStringFromDate,
+    //getDateTimeFromString,
+    //getStringFromDateTime,
+    //getDateFromString,
     isManager,
     findAccountDetails,
     findUserDetails,
     checkBalance,
     getAllUserZero,
-    loanAutorization
+    loanAutorization,
+    transactionAutorization
 };

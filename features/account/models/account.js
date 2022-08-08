@@ -4,18 +4,18 @@ const User = require('../../authentication/models/user')
 // Account have a id(- Account no.), all user attributes, balance on the account.
 const accountSchema = new Schema({
     ownerId: {
-        type: String
+        type: String,
         //type: Schema.Types.ObjectId, ref: 'User', 
-        //required: true
+        required: true
     },
     balance: {
         type: Number,
-        //required: true
+        required: true
     },
     managerId: {
-        type: String
+        type: String,
         //type: Schema.Types.ObjectId, ref: 'User', 
-        //required: true
+        required: true
     }
 });
 

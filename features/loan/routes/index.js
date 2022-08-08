@@ -47,8 +47,8 @@ const addLoan = async (req, res) => {
     let getAuth = Utils.loanAutorization(srcAcc.balance, dstAcc.balance, newLoan.amount); //verification of accounts balances
 
     if (!getAuth.cond) {
-        //console.log((await getAuth).message)
-        res.send((await getAuth).message);
+        //console.log(getAuth.message)
+        res.send(getAuth.message);
     }
     else {
         //handleAccountBalances(newLoan.srcAccountId, newLoan.destAccountId, newLoan.amount);
@@ -59,12 +59,16 @@ const addLoan = async (req, res) => {
 
 const deleteLoan = async (req, res) => {
     //need to check if the session is a admin 
-    try {
-        const id = req.params.id;
-        const loan = await Loan.findByIdAndRemove(id);
-        if (!loan) return res.status(404).send("loan with the given id doesn't found");
-    } catch (error) { res.status(400).send(error.message); }
-    res.send("Loan deleted");
+    const id = req.params.id.slice(1);
+    const tran = await Loan.findByIdAndRemove(id).exec(function (err, item) {
+        if (err) {
+            return res.json({ success: false, msg: 'Cannot remove item' });
+        }
+        if (!item) {
+            return res.status(404).json({ success: false, msg: 'Loan not found' });
+        }
+        res.json({ success: true, msg: 'Loan deleted.' });
+    });
 }
 
 const deleteAllLoan = async (req, res) => {
@@ -77,25 +81,23 @@ const deleteAllLoan = async (req, res) => {
 
 const updateLoan = async (req, res) => {
     try {
-        const id = req.params._id;
+        const id = req.params._id.slice(1);
         const data = req.body;
-        const uLoan = await Loan.findOneAndUpdate({ id: id }, {
+        const uLoan = await Loan.findOneAndUpdate({ _id: id }, {
             srcAccountId: data.srcAccountId,
             destAccountId: data.destAccountId,
             amount: data.amount,
             managerId: data.managerId,
             duration: data.duration
-            //userType: data.userType
         }, { new: true });
     } catch (error) {
         res.status(400).send(error.message);
     }
     console.log("1 document updated");
-    res.send("ok")
+    res.send("ok");
 }
 
 const getAllLoans = async (req, res) => {
-
     Loan.find()
         .then((loan) => res.json(loan))
         .catch((err) => res.status(400).json("Error: " + err));
@@ -106,7 +108,7 @@ router.route("/create").post(addLoan);
 router.route("/delete/:id").post(deleteLoan);
 router.route("/deleteAll").get(deleteAllLoan);
 router.route("/update/:id").put(updateLoan);
-router.route("/loans").get(getAllLoans);
+router.route("/getAll").get(getAllLoans);
 
 module.exports = router
 

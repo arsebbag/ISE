@@ -34,4 +34,4 @@ class BlockChain { // Our Blockchain Object
         return true // If all the blocks are valid, return true
     }
 }
-//export { BlockChain };
+module.exports = { BlockChain };

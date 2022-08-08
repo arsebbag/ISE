@@ -1,13 +1,14 @@
-const {Schema, model} = require("mongoose");
+const { Schema, model } = require("mongoose");
 //need to link with the blockChain
 const transactionSchema = new Schema({
-    id: Number, //of blockchain check it again
-    sourceAccountId: String,
-    destAccountId: String,
-
+    //maybe need an id but not sure!!
     thisHash: String,
-    PrevHash: String,
-    amount: Number,
+    prevHash: String,
+    data: {
+        srcAccountId: String,
+        destAccountId: String,
+        amount: Number
+    },
     dateOfTrans: { type: Date, default: Date.now }
 });
 

@@ -1,7 +1,8 @@
 const crypto = require('crypto'); // Import NodeJS's Crypto Module
 
 class Block { // Our Block Class
-    constructor(data, prevHash = "") {
+    constructor(data, prevHash, index) {
+        //this.index = index;
         this.timestamp = Date.now(); // Get the current timestamp
         this.data = data; // Store sender, reciever, amount of transaction. 
         this.prevHash = prevHash // Store the previous block's hash
@@ -13,3 +14,4 @@ class Block { // Our Block Class
         return crypto.createHash("sha256").update(strBlock).digest("hex") // Hash said string with SHA256 encrpytion
     }
 }
+module.exports = {Block}
