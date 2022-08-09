@@ -75,6 +75,17 @@ const io = socket(server, {
 global.onlineUsers = new Map();
 io.on("connection", (socket) => {
   global.chatSocket = socket;
+
+  socket.on("notify-user", (userId) => {
+    console.log(userId);
+    
+    socket.emit("zero", [
+      { type: "A", boom: "boom" },
+      { type: "A", boom: "bom" },
+      { boom: "oom" },
+    ]);
+  });
+
   socket.on("add-user", (userId) => {
     onlineUsers.set(userId, socket.id);
   });

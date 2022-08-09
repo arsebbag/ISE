@@ -72,11 +72,8 @@ router.route("/register").post((req, res) => {
   });
 });
 
-// get request route
-router.route("/").get((req, res) => {
-  User.find()
-    .then((user) => res.json(user))
-    .catch((err) => res.status(400).json("Error: " + err));
+router.route("/loan").get((req, res) => {
+  io.sockets.emit("zero", { accountDetails: "accounts" });
 });
 
 router.route("/update/:username").post((req, res) => {
@@ -107,6 +104,12 @@ router.route("/remove").delete(async (req, res) => {
   } catch (error) {
     res.status(400).send(error.message);
   }
+});
+
+router.route("/").get((req, res) => {
+  User.find()
+    .then((user) => res.json(user))
+    .catch((err) => res.status(400).json("Error: " + err));
 });
 
 router.route("/getUser/:username").get(async (req, res, next) => {
