@@ -8,8 +8,8 @@ const Credentials = require('./Credentials')
 const user = new Schema({
   ...Person,
   ...Credentials,
-  role: { type: String, required: true }, //will be 'A' for admin OR 'B' for basic user
+  role: { type: String }, //will be 'A' for admin OR 'B' for basic user
   manager: Number //id of manager
-}, { versionKey: '_somethingElse' });
+}, { versionKey: false });
 
 module.exports = model("User", user);

@@ -11,8 +11,8 @@ async function connectToDB() {
             console.log("Mongoose is connected");
         }
     );
-    mongoose.connection.on('error', () => console.error("Couldn't connect to database."))
-    mongoose.connection.on('connection', () => console.log('Connected to database.'))
+    // mongoose.connection.on('error', () => console.error("Couldn't connect to database."))
+    // mongoose.connection.on('connection', () => console.log('Connected to database.'))
 }
 
 module.exports = connectToDB

@@ -53,14 +53,10 @@ app.listen(port, () => {
 });
 
 const connectToDB = require('./config/mongooseConnect')
-connectToDB()
+connectToDB();
+
+// const initChain = require('./config/BlockChainInit')
+// initChain();
 
 module.exports = app;
 
-// not for here
-function decreaseCoinCost(cost) {
-  let costNow = (cost - 0.001) * changeToDollar(1);
-}
-function changeToDollar(amont) {
-  return //need to use api to exchange to dollar
-}

@@ -36,8 +36,6 @@ router.route("/login").post(async (req, res, next) => {
         if (req.session.user.role == 'M')// Manager
         {
           console.log("SUCCESS")//"SUCCESS"
-          //res.send("Manager authenticated");
-          //console.log(user);
           res.json({ message: "Manager authenticated", userDetails: user })// need to add all person details
         } else if (req.session.user.role == 'B') {
           res.send("Basic user authenticated");
@@ -54,21 +52,22 @@ router.route("/register").post((req, res) => {
   User.findOne({ username: req.body.username }, async (err, doc) => {
     if (err) throw err;
     if (doc) res.send("User already exists");
-    if (!doc) {
-      const hashedPassword = await bcrypt.hash(req.body.password, 10);
-      
-      const newUser = new User({
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        birthday: req.body.birthday,
-        username: req.body.username,
-        password: hashedPassword,
-        role: req.body.role
-      });
-      await newUser.save();
-      res.send("User created");
-    }
+    
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    
+    const newUser = new User({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      birthday: req.body.birthday,
+      username: req.body.username,
+      password: hashedPassword,
+      role: req.body.role
+    });
+    
+    await newUser.save();
+    res.send("User created");
+    
   });
 });
 
@@ -81,16 +80,37 @@ router.route("/").get((req, res) => {
 
 
 //check if ok
-router.route("/remove").delete(async (req, res) => {
+const deleteUser = (async (req, res) => {
   try {
     let user = await User.findOneAndDelete({ username: req.body.username });
     if (!user) return res.status(404).send("user with the given id doesn't found");
   } catch (error) { res.status(400).send(error.message); }
 });
 
-router.route("/removeall").delete(async (req, res) => {
+const removeAllUsers = (async (req, res) => {
   try {
     await User.remove({});
   } catch (error) { res.status(400).send(error.message); }
 });
+
+const updateUser = async (req, res) => {
+  try {
+    const id = req.params.id.slice(1);
+    const Data = req.body;
+
+    await User.findOneAndUpdate({ _id: id }, {
+      
+    }, { new: true });
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+  console.log("1 document updated");
+  res.send("1 document updated");
+}
+
+/// user's router
+router.route("/remove").delete(deleteUser);
+router.route("/removeall").delete(removeAllUsers);
+router.route("/update/:id").put(updateUser);
+
 module.exports = router;

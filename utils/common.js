@@ -70,6 +70,27 @@ async function checkBalance(accountId) {
     else
         return false;
 }
+
+async function addMoneyToAccount(account, amount) {
+    account
+    account.balance += amount //maybe put all the money in LevCoin
+}
+async function subMoneyfromAccount(account, amount) {
+    account.balance -= amount// if <= 0 need to create event to manager
+}
+
+async function updateAccount(accountid, newBalance,newManager) {
+    try {
+        await Account.findOneAndUpdate({ _id: accountid }, {
+            balance: newBalance,
+            managerId: newManager,
+        }, { new: true });
+    } catch (error) {
+        return error
+    }
+    
+    return "1 document updated"
+}
 ////#endregion - accounts.
 
 //#region - user's functions 
@@ -125,9 +146,13 @@ module.exports = {
     //getDateFromString,
     isManager,
     findAccountDetails,
+    updateAccount,
     findUserDetails,
     checkBalance,
     getAllUserZero,
     loanAutorization,
-    transactionAutorization
+    transactionAutorization,
+    addMoneyToAccount,
+    subMoneyfromAccount
+
 };

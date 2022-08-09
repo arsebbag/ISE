@@ -10,8 +10,9 @@ const BlockChain = require("../../../BlockChain/BlockChain");
 const Utils = require("../../../utils/common");
 const Block = require("../../../BlockChain/Block");
 const mongoose = require("mongoose")
-router.route("/").post((req, res, next) => {
-});
+
+const { Server } = require("socket.io")
+
 
 //Transaction's controller
 const addTransaction = async (req, res) => {
@@ -20,15 +21,20 @@ const addTransaction = async (req, res) => {
     let dstAcc = await Utils.findAccountDetails(Data.data.destAccountId)
 
     //first check and after fill and save in database
-    let getAuth = Utils.transactionAutorization(srcAcc.balance, dstAcc.balance, Data.amount); //verification of accounts balances
+    let getAuth = Utils.transactionAutorization(srcAcc.balance, dstAcc.balance, Data.data.amount); //verification of accounts balances
     if (!getAuth.cond) {
         //console.log(getAuth.message)
         res.send(getAuth.message);
     }
     if (!Utils.checkBalance(Data.data.srcAccountId)) {
+        var io = io.listen(server);
+        io.clients[sessionID].send()
         res.send("Transaction unauthorized - source account don't have enough money for this transaction");
     }
-    let block = new Block()
+    
+    Utils.addMoneyToAccount(srcAcc, Data.data.amount)
+    Utils.subMoneyfromAccount(dstAcc, Data.data.amount)
+    //let block = new Block()
     let newTran = new Transaction({ //need to change here
         id: Data.id,
         thisHash: Data.thisHash,
@@ -61,8 +67,9 @@ const updateTransaction = async (req, res) => {
     try {
         const id = req.params.id.slice(1);
         const Data = req.body;
+
         await Transaction.findOneAndUpdate({ _id: id }, {
-            data: { amount: Data.data.amount }
+            data: { srcAccountId: Data.data.srcAccountId, destAccountId: Data.data.destAccountId, amount: Data.data.amount }
         }, { new: true });
     } catch (error) {
         res.status(400).send(error.message);

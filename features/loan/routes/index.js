@@ -24,8 +24,25 @@ router.route("/").post((req, res, next) => {
 // }
 //controllers funcs - (maybe passe it to new controllers folder/file).
 const addLoan = async (req, res) => {
-    const data = req.body
-    const params = req.params
+    let data = req.body
+    // if (req.session.user.role == 'M') {
+    //     //check account - amount enough to validate the loan
+    // }
+    let srcAcc = await Utils.findAccountDetails(data.srcAccountId)
+    let dstAcc = await Utils.findAccountDetails(data.destAccountId)
+    // let srcUser = await Utils.findUserDetails(srcAcc.ownerId)
+    // let dstUser = await Utils.findUserDetails(dstAcc.ownerId)
+
+    /////check authorizations/////
+    let getAuth = Utils.loanAutorization(srcAcc.balance, dstAcc.balance, newLoan.amount); //verification of accounts balances
+
+    if (!getAuth.cond) {
+        res.send(getAuth.message);
+    }
+    //handle accounts Balances.
+    Utils.addMoneyToAccount(srcAcc, data.amount)
+    Utils.subMoneyfromAccount(dstAcc, data.amount)
+
     let newLoan = new Loan({
         srcAccountId: data.srcAccountId,
         destAccountId: data.destAccountId,
@@ -34,27 +51,11 @@ const addLoan = async (req, res) => {
         dateOfLoan: Date.now(),
         duration: data.duration
     });
-    // if (req.session.user.role == 'M') {
-    //     //check account - amount enough to validate the loan
-    // }
-
-    let srcAcc = await Utils.findAccountDetails(newLoan.srcAccountId)
-    let dstAcc = await Utils.findAccountDetails(newLoan.destAccountId)
-    // let srcUser = await Utils.findUserDetails(srcAcc.ownerId)
-    // let dstUser = await Utils.findUserDetails(dstAcc.ownerId)
-
-    /////check authorizations/////
-    let getAuth = Utils.loanAutorization(srcAcc.balance, dstAcc.balance, newLoan.amount); //verification of accounts balances
-
-    if (!getAuth.cond) {
-        //console.log(getAuth.message)
-        res.send(getAuth.message);
-    }
-    else {
-        //handleAccountBalances(newLoan.srcAccountId, newLoan.destAccountId, newLoan.amount);
-        await newLoan.save();
-        res.send("Loan created");
-    }
+    // add check balance - if not - var io = io.listen(server); io.clients[sessionID].send()
+    
+    await newLoan.save();
+    res.send({"message":"Loan created", "loan":newLoan });
+    
 }
 
 const deleteLoan = async (req, res) => {

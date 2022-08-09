@@ -23,15 +23,9 @@ router.route("/").get((req, res, next) => {
 });
 
 router.route("/create").post(async (req, res) => {
-    //need to check if the session is a admin 
     const data = req.body
-    let newAccount = new Account({
-        ownerId: data.ownerId,
-        balance: data.balance,// - not need it if the manager give money + create func addMoneyToAccount()
-        managerId: data.managerId
-    });
-
     let srcUser = await Utils.findUserDetails(newAccount.ownerId)
+
     //check if user exist
     if (srcUser == null) {
         res.send(`user ID - ${newAccount.ownerId} doesn't exist, can't create this account!`)
@@ -40,10 +34,16 @@ router.route("/create").post(async (req, res) => {
     let accountsCount = await CountUserID(newAccount.ownerId);//.then(res => console.log(res)).catch(err => console.log(err);
     if (accountsCount >= 1) {
         res.send(`user ${srcUser.username}, no. ${newAccount.ownerId} already have an account!`);
-    } else {
-        await newAccount.save();
-        res.send("Account created");
-    }
+    } //maybe need a else
+    //need to check if the session is a admin 
+
+    let newAccount = new Account({
+        ownerId: data.ownerId,
+        balance: data.balance,// - not need it if the manager give money + create func addMoneyToAccount()
+        managerId: data.managerId
+    });
+    await newAccount.save();
+    res.send("Account created");
 });
 //TODO -change to boolean func
 async function CountUserID(userId) {
@@ -53,19 +53,27 @@ async function CountUserID(userId) {
     })
 }
 
-const updateAccount = async (req, res) => {
+const updateAccount2 = async (req, res) => {
     try {
-        const id = req.params._id.slice(1);
-        const data = req.body;
-        await Account.findOneAndUpdate({ _id: id }, {
-            balance: data.balance,
-            managerId: data.managerId,
-        }, { new: true });
-    } catch (error) {
-        res.status(400).send(error.message);
+        const id = req.params.id.slice(1);
+        const data = req.body
+        let result = await Utils.updateAccount(id, data.balance, data.managerId)
+        res.send(result)
+    } catch (err) {
+        res.send(err)
     }
-    console.log("1 document updated");
-    res.send("1 document updated");
+    // try {
+    //     const id = req.params._id.slice(1);
+    //     const data = req.body;
+    //     await Account.findOneAndUpdate({ _id: id }, {
+    //         balance: data.balance,
+    //         managerId: data.managerId,
+    //     }, { new: true });
+    // } catch (error) {
+    //     res.status(400).send(error.message);
+    // }
+    // console.log("1 document updated");
+    // res.send("1 document updated");
 }
 
 
@@ -84,7 +92,7 @@ const deleteAccount = async (req, res) => {
 }
 
 const getAllAccounts = async (req, res) => {
-    //need to check if the session is a admin 
+
     Account.find()
         .then((account) => res.json(account))
         .catch((err) => res.status(400).json("Error: " + err));
@@ -99,12 +107,7 @@ const deleteAllAccounts = async (req, res) => {
     res.send("All accounts deleted");
 }
 
-function addMoneyToAccount(account, amount) {
-    account.balance += amount //maybe put all the money in LevCoin
-}
-function subMoneyfromAccount(account, amount) {
-    account.balance -= amount// if <= 0 need to create event to manager
-}
+
 function getAllBalanceCurrencies(balance) {
     return {
         "LEVCOIN": balance,
@@ -117,7 +120,7 @@ function getAllBalanceCurrencies(balance) {
 router.route("/getAll").get(getAllAccounts);
 router.route("/delete/:id").get(deleteAccount);
 router.route("/deleteAll").get(deleteAllAccounts);
-router.route("/update/:id").put(updateAccount);
+router.route("/update/:id").put(updateAccount2);
 
 
-module.exports = router
+module.exports = router//, {getAllBalanceCurrencies}
